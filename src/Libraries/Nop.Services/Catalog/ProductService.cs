@@ -54,6 +54,7 @@ namespace Nop.Services.Catalog
         protected readonly IRepository<ProductReviewHelpfulness> _productReviewHelpfulnessRepository;
         protected readonly IRepository<ProductSpecificationAttribute> _productSpecificationAttributeRepository;
         protected readonly IRepository<ProductTag> _productTagRepository;
+        protected readonly IRepository<ProductVideoMapping> _productVideoMappingRepository;
         protected readonly IRepository<ProductWarehouseInventory> _productWarehouseInventoryRepository;
         protected readonly IRepository<RelatedProduct> _relatedProductRepository;
         protected readonly IRepository<Shipment> _shipmentRepository;
@@ -95,6 +96,7 @@ namespace Nop.Services.Catalog
             IRepository<ProductReviewHelpfulness> productReviewHelpfulnessRepository,
             IRepository<ProductSpecificationAttribute> productSpecificationAttributeRepository,
             IRepository<ProductTag> productTagRepository,
+            IRepository<ProductVideoMapping> productVideoMappingRepository,
             IRepository<ProductWarehouseInventory> productWarehouseInventoryRepository,
             IRepository<RelatedProduct> relatedProductRepository,
             IRepository<Shipment> shipmentRepository,
@@ -132,6 +134,7 @@ namespace Nop.Services.Catalog
             _productReviewHelpfulnessRepository = productReviewHelpfulnessRepository;
             _productSpecificationAttributeRepository = productSpecificationAttributeRepository;
             _productTagRepository = productTagRepository;
+            _productVideoMappingRepository = productVideoMappingRepository;
             _productWarehouseInventoryRepository = productWarehouseInventoryRepository;
             _relatedProductRepository = relatedProductRepository;
             _shipmentRepository = shipmentRepository;
@@ -2308,6 +2311,90 @@ namespace Nop.Services.Catalog
             return await products.ToPagedListAsync(pageIndex, pageSize);
         }
 
+        #endregion
+
+        #region Product videos
+
+        /// <summary>
+        /// Deletes a product video
+        /// </summary>
+        /// <param name="productVideoMapping">Product video</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task DeleteProductVideoAsync(ProductVideoMapping productVideoMapping)
+        {
+            await _productVideoMappingRepository.DeleteAsync(productVideoMapping);
+        }
+
+        /// <summary>
+        /// Gets a product videos by product identifier
+        /// </summary>
+        /// <param name="productId">The product identifier</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the product videos
+        /// </returns>
+        public virtual async Task<IList<ProductVideoMapping>> GetProductVideosByProductIdAsync(int productId)
+        {
+            var query = from pvm in _productVideoMappingRepository.Table
+                        where pvm.ProductId == productId
+                        orderby pvm.DisplayOrder, pvm.Id
+                        select pvm;
+
+            var productVideos = await query.ToListAsync();
+
+            return productVideos;
+        }
+
+        /// <summary>
+        /// Gets a product video
+        /// </summary>
+        /// <param name="productPictureId">Product video identifier</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the product video
+        /// </returns>
+        public virtual async Task<ProductVideoMapping> GetProductVideoByIdAsync(int productVideoId)
+        {
+            return await _productVideoMappingRepository.GetByIdAsync(productVideoId, cache => default);
+        }
+
+        /// <summary>
+        /// Inserts a product video
+        /// </summary>
+        /// <param name="productVideoMapping">Product picture</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task InsertProductVideoAsync(ProductVideoMapping productVideoMapping)
+        {
+            await _productVideoMappingRepository.InsertAsync(productVideoMapping);
+        }
+
+        /// <summary>
+        /// Updates a product video
+        /// </summary>
+        /// <param name="productVideoMapping">Product video</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task UpdateProductVideoAsync(ProductVideoMapping productVideoMapping)
+        {
+            await _productVideoMappingRepository.UpdateAsync(productVideoMapping);
+        }
+
+        /// <summary>
+        /// Get the IDs of all product videos 
+        /// </summary>
+        /// <param name="productsIds">Products IDs</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the all video identifiers grouped by product ID
+        /// </returns>
+        public async Task<IDictionary<int, int[]>> GetProductsVideosIdsAsync(int[] productsIds)
+        {
+            var productVideos = await _productVideoMappingRepository.Table
+                .Where(p => productsIds.Contains(p.ProductId))
+                .ToListAsync();
+
+            return productVideos.GroupBy(p => p.ProductId).ToDictionary(p => p.Key, p => p.Select(p1 => p1.VideoId).ToArray());
+        }
+                
         #endregion
 
         #region Product reviews

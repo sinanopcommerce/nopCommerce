@@ -32,6 +32,7 @@ namespace Nop.Services.Catalog
         private readonly IProductTagService _productTagService;
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IStoreMappingService _storeMappingService;
+        private readonly IVideoService _videoService;
         private readonly IUrlRecordService _urlRecordService;
 
         #endregion
@@ -51,6 +52,7 @@ namespace Nop.Services.Catalog
             IProductTagService productTagService,
             ISpecificationAttributeService specificationAttributeService,
             IStoreMappingService storeMappingService,
+            IVideoService videoService,
             IUrlRecordService urlRecordService)
         {
             _categoryService = categoryService;
@@ -66,6 +68,7 @@ namespace Nop.Services.Catalog
             _productTagService = productTagService;
             _specificationAttributeService = specificationAttributeService;
             _storeMappingService = storeMappingService;
+            _videoService = videoService;
             _urlRecordService = urlRecordService;
         }
 
@@ -532,6 +535,31 @@ namespace Nop.Services.Catalog
         }
 
         /// <summary>
+        /// Copy product videos
+        /// </summary>
+        /// <param name="product">Product</param>
+        /// <param name="copyVideos"></param>
+        /// <param name="productCopy">New product</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        protected virtual async Task CopyProductVideosAsync(Product product, bool copyVideos, Product productCopy)
+        {
+            if (copyVideos)
+            {
+                foreach (var productVideo in await _productService.GetProductVideosByProductIdAsync(product.Id))
+                {
+                    var video = await _videoService.GetVideoByIdAsync(productVideo.VideoId);
+                    var videoCopy = await _videoService.InsertVideoAsync(video);
+                    await _productService.InsertProductVideoAsync(new ProductVideoMapping
+                    {
+                        ProductId = productCopy.Id,
+                        VideoId = videoCopy.Id,
+                        DisplayOrder = productVideo.DisplayOrder
+                    });
+                }
+            }
+        }
+
+        /// <summary>
         /// Copy localization data
         /// </summary>
         /// <param name="product">Product</param>
@@ -753,14 +781,14 @@ namespace Nop.Services.Catalog
         /// <param name="product">The product to copy</param>
         /// <param name="newName">The name of product duplicate</param>
         /// <param name="isPublished">A value indicating whether the product duplicate should be published</param>
-        /// <param name="copyImages">A value indicating whether the product images should be copied</param>
+        /// <param name="copyMultimedia">A value indicating whether the product images and videos should be copied</param>
         /// <param name="copyAssociatedProducts">A value indicating whether the copy associated products</param>
         /// <returns>
         /// A task that represents the asynchronous operation
         /// The task result contains the product copy
         /// </returns>
         public virtual async Task<Product> CopyProductAsync(Product product, string newName,
-            bool isPublished = true, bool copyImages = true, bool copyAssociatedProducts = true)
+            bool isPublished = true, bool copyMultimedia = true, bool copyAssociatedProducts = true)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
@@ -780,7 +808,10 @@ namespace Nop.Services.Catalog
             await _productService.UpdateProductAsync(productCopy);
 
             //copy product pictures
-            var originalNewPictureIdentifiers = await CopyProductPicturesAsync(product, newName, copyImages, productCopy);
+            var originalNewPictureIdentifiers = await CopyProductPicturesAsync(product, newName, copyMultimedia, productCopy);
+
+            //copy product videos
+            await CopyProductVideosAsync(product, copyMultimedia, productCopy);
 
             //quantity change history
             await _productService.AddStockQuantityHistoryEntryAsync(productCopy, product.StockQuantity, product.StockQuantity, product.WarehouseId,
@@ -816,7 +847,7 @@ namespace Nop.Services.Catalog
             await _productService.UpdateHasDiscountsAppliedAsync(productCopy);
 
             //associated products
-            await CopyAssociatedProductsAsync(product, isPublished, copyImages, copyAssociatedProducts, productCopy);
+            await CopyAssociatedProductsAsync(product, isPublished, copyMultimedia, copyAssociatedProducts, productCopy);
 
             return productCopy;
         }

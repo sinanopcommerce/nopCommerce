@@ -709,6 +709,61 @@ namespace Nop.Services.Catalog
 
         #endregion
 
+        #region Product videos
+
+        /// <summary>
+        /// Deletes a product video
+        /// </summary>
+        /// <param name="productVideoMapping">Product video</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        Task DeleteProductVideoAsync(ProductVideoMapping productVideoMapping);
+
+        /// <summary>
+        /// Gets a product videos by product identifier
+        /// </summary>
+        /// <param name="productId">The product identifier</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the product videos
+        /// </returns>
+        Task<IList<ProductVideoMapping>> GetProductVideosByProductIdAsync(int productId);
+
+        /// <summary>
+        /// Gets a product video
+        /// </summary>
+        /// <param name="productPictureId">Product video identifier</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the product video
+        /// </returns>
+        Task<ProductVideoMapping> GetProductVideoByIdAsync(int productVideoId);
+
+        /// <summary>
+        /// Inserts a product video
+        /// </summary>
+        /// <param name="productVideoMapping">Product picture</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        Task InsertProductVideoAsync(ProductVideoMapping productVideoMapping);
+
+        /// <summary>
+        /// Updates a product video
+        /// </summary>
+        /// <param name="productVideoMapping">Product video</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        Task UpdateProductVideoAsync(ProductVideoMapping productVideoMapping);
+
+        /// <summary>
+        /// Get the IDs of all product videos 
+        /// </summary>
+        /// <param name="productsIds">Products IDs</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the all video identifiers grouped by product ID
+        /// </returns>
+        Task<IDictionary<int, int[]>> GetProductsVideosIdsAsync(int[] productsIds);
+
+        #endregion
+
         #region Product reviews
 
         /// <summary>

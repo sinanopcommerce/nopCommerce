@@ -30,6 +30,7 @@ namespace Nop.Data.Mapping
             { typeof(ProductCategory), "Product_Category_Mapping" },
             { typeof(ProductManufacturer), "Product_Manufacturer_Mapping" },
             { typeof(ProductPicture), "Product_Picture_Mapping" },
+            { typeof(ProductVideoMapping), "Product_Video_Mapping" },
             { typeof(ProductSpecificationAttribute), "Product_SpecificationAttribute_Mapping" },
             { typeof(ForumGroup), "Forums_Group" },
             { typeof(Forum), "Forums_Forum" },

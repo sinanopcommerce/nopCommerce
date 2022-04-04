@@ -514,6 +514,8 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
                 .ForMember(model => model.ProductOrderSearchModel, options => options.Ignore())
                 .ForMember(model => model.ProductPictureModels, options => options.Ignore())
                 .ForMember(model => model.ProductPictureSearchModel, options => options.Ignore())
+                .ForMember(model => model.ProductVideoModels, options => options.Ignore())
+                .ForMember(model => model.ProductVideoSearchModel, options => options.Ignore())
                 .ForMember(model => model.ProductSpecificationAttributeSearchModel, options => options.Ignore())
                 .ForMember(model => model.ProductsTypesSupportedByProductTemplates, options => options.Ignore())
                 .ForMember(model => model.ProductTags, options => options.Ignore())
@@ -611,6 +613,9 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
                 .ForMember(model => model.OverrideAltAttribute, options => options.Ignore())
                 .ForMember(model => model.OverrideTitleAttribute, options => options.Ignore())
                 .ForMember(model => model.PictureUrl, options => options.Ignore());
+
+            CreateMap<ProductVideoMapping, ProductVideoModel>()
+               .ForMember(model => model.VideoUrl, options => options.Ignore());
 
             CreateMap<Product, SpecificationAttributeProductModel>()
                 .ForMember(model => model.SpecificationAttributeId, options => options.Ignore())
